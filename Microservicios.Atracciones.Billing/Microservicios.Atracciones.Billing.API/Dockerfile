@@ -12,7 +12,7 @@ COPY ["Microservicios.Atracciones.Billing/Microservicios.Atracciones.Billing.Dat
 
 # PROYECTO COMPARTIDO gRPC (Ajustar ruta si el proyecto tiene otro nombre o ubicación)
 # Si no existe o no se necesita aún, puedes comentar la siguiente línea.
-COPY ["Microservicios.Atracciones.gRPC/Microservicios.Atracciones.gRPC.csproj", "Microservicios.Atracciones.gRPC/"]
+# COPY ["Microservicios.Atracciones.gRPC/Microservicios.Atracciones.gRPC.csproj", "Microservicios.Atracciones.gRPC/"]
 
 # Restaurar dependencias
 RUN dotnet restore "Microservicios.Atracciones.Billing/Microservicios.Atracciones.Billing.API/Microservicios.Atracciones.Billing.API.csproj"

@@ -76,4 +76,20 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+app.MapGet("/test-db", async (Microservicios.Atracciones.Billing.DataAccess.Context.BillingDbContext dbContext) => 
+{
+    try 
+    {
+        var canConnect = await dbContext.Database.CanConnectAsync();
+        return Results.Ok(new { 
+            Success = canConnect,
+            Message = canConnect ? "¡Conexión a Supabase exitosa!" : "No se pudo conectar a la base de datos."
+        });
+    } 
+    catch (Exception ex) 
+    {
+        return Results.Problem($"Error de conexión: {ex.Message}");
+    }
+}).AllowAnonymous().WithTags("Test");
+
 app.Run();
