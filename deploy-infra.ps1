@@ -88,6 +88,25 @@ foreach ($service in $microservices) {
     Write-Host "¡Container App '$service' creada con éxito!" -ForegroundColor Green
 }
 
+# 7.5. Crear Azure Static Web App para el Frontend (React / Vite)
+Write-Host "`n[6.5] Creando Azure Static Web App para el Frontend..." -ForegroundColor Yellow
+$SWA_NAME = "swa-tidescape-frontend"
+$SWA_LOCATION = "eastus2" # Región de despliegue para la Static Web App
+
+# Crear la Static Web App (sin enlazar repositorio directamente para evitar requerir GitHub Token del usuario)
+az staticwebapp create `
+    --name $SWA_NAME `
+    --resource-group $RESOURCE_GROUP `
+    --location $SWA_LOCATION `
+    --sku Free `
+    --output table
+
+Write-Host "¡Static Web App '$SWA_NAME' creada exitosamente!" -ForegroundColor Green
+
+# Obtener Token de despliegue de la Static Web App
+Write-Host "Obteniendo Token de despliegue de la Static Web App..." -ForegroundColor DarkCyan
+$SWA_TOKEN = az staticwebapp secrets list --name $SWA_NAME --resource-group $RESOURCE_GROUP --query "properties.apiKey" -o tsv
+
 # 8. Intentar crear Service Principal para GitHub Actions
 Write-Host "`n========================================================" -ForegroundColor Cyan
 Write-Host "   CREACIÓN DE CREDENCIALES PARA GITHUB ACTIONS (CI/CD)  " -ForegroundColor Cyan
@@ -134,5 +153,8 @@ Write-Host "`n3. Nombre: REGISTRY_PASSWORD" -ForegroundColor Yellow
 Write-Host "   Valor:  $ACR_PASSWORD" -ForegroundColor Gray
 Write-Host "`n4. Nombre: AZURE_RESOURCE_GROUP" -ForegroundColor Yellow
 Write-Host "   Valor:  $RESOURCE_GROUP" -ForegroundColor Gray
+Write-Host "`n5. Nombre: AZURE_STATIC_WEB_APPS_API_TOKEN" -ForegroundColor Yellow
+Write-Host "   Valor:  $SWA_TOKEN" -ForegroundColor Gray
 
 Write-Host "`n¡Infraestructura aprovisionada con éxito! Ahora puedes subir los cambios a tu repositorio y el pipeline de GitHub Actions se encargará del resto." -ForegroundColor Green
+

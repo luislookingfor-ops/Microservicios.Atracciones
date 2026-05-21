@@ -24,6 +24,17 @@ public class AtraccionesBookingController : ControllerBase
     }
 
     /// <summary>
+    /// Obtiene la disponibilidad agrupada por día para una atracción.
+    /// </summary>
+    [HttpGet("{attractionId:guid}/availability")]
+    [AllowAnonymous]
+    public async Task<ActionResult<ApiResponse<List<DisponibilidadDiariaDto>>>> ObtenerDisponibilidad(Guid attractionId, [FromQuery] DateOnly? fecha = null)
+    {
+        var result = await _bookingService.ObtenerDisponibilidadAsync(attractionId, fecha);
+        return Ok(result);
+    }
+
+    /// <summary>
     /// Crea una nueva reserva bloqueando el inventario de cupos.
     /// </summary>
     [HttpPost]

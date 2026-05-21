@@ -22,15 +22,20 @@ public class AttractionDataService : IAttractionDataService
 
     public async Task<AttractionNode?> GetAttractionBySlugAsync(string slug, short? languageId = null)
     {
-        var attraction = await _unitOfWork.Attractions.Query()
+        bool isGuid = Guid.TryParse(slug, out Guid id);
+
+        var query = _unitOfWork.Attractions.Query()
             .Include(a => a.Location)
             .Include(a => a.Subcategory)
             .ThenInclude(s => s.Category)
             .Include(a => a.Media)
             .Include(a => a.Tags).ThenInclude(t => t.Tag)
             .Include(a => a.Inclusions).ThenInclude(i => i.InclusionItem)
-            .Include(a => a.Languages)
-            .FirstOrDefaultAsync(a => a.Slug == slug && a.DeletedAt == null);
+            .Include(a => a.Languages);
+
+        var attraction = isGuid
+            ? await query.FirstOrDefaultAsync(a => a.Id == id && a.DeletedAt == null)
+            : await query.FirstOrDefaultAsync(a => a.Slug == slug && a.DeletedAt == null);
 
         if (attraction == null) return null;
 
