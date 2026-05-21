@@ -128,6 +128,12 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<Microservicios.Atracciones.Catalog.DataAccess.Context.AtraccionDbContext>();
+    dbContext.Database.EnsureCreated();
+}
+
 app.Run();
 
 
