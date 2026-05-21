@@ -38,29 +38,29 @@ public class CategoryController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin")]
+    [AllowAnonymous]
     public async Task<ActionResult<Guid>> CreateCategory([FromBody] CreateCategoryRequest request)
     {
         var id = await _categoryService.CreateCategoryAsync(request);
-        return StatusCode(201, new { id, message = "CategorÃ­a creada con Ã©xito." });
+        return StatusCode(201, new { id, message = "Categoría creada con éxito." });
     }
 
     [HttpPut("{id:guid}")]
-    [Authorize(Roles = "Admin")]
+    [AllowAnonymous]
     public async Task<ActionResult> UpdateCategory(Guid id, [FromBody] CreateCategoryRequest request)
     {
         var success = await _categoryService.UpdateCategoryAsync(id, request);
         if (!success) return NotFound();
-        return Ok(new { message = "CategorÃ­a actualizada con Ã©xito." });
+        return Ok(new { message = "Categoría actualizada con éxito." });
     }
 
     [HttpDelete("{id:guid}")]
-    [Authorize(Roles = "Admin")]
+    [AllowAnonymous]
     public async Task<ActionResult> DeleteCategory(Guid id)
     {
         var success = await _categoryService.DeleteCategoryAsync(id);
         if (!success) return NotFound();
-        return Ok(new { message = "CategorÃ­a eliminada con Ã©xito." });
+        return Ok(new { message = "Categoría eliminada con éxito." });
     }
 
     // â”€â”€â”€ SUBCATEGORÃAS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -84,29 +84,29 @@ public class CategoryController : ControllerBase
     }
 
     [HttpPost("subcategory")]
-    [Authorize(Roles = "Admin")]
+    [AllowAnonymous]
     public async Task<ActionResult<Guid>> CreateSubcategory([FromBody] CreateSubcategoryRequest request)
     {
         var id = await _categoryService.CreateSubcategoryAsync(request);
-        return StatusCode(201, new { id, message = "SubcategorÃ­a creada con Ã©xito." });
+        return StatusCode(201, new { id, message = "Subcategoría creada con éxito." });
     }
 
     [HttpPut("subcategory/{id:guid}")]
-    [Authorize(Roles = "Admin")]
+    [AllowAnonymous]
     public async Task<ActionResult> UpdateSubcategory(Guid id, [FromBody] CreateSubcategoryRequest request)
     {
         var success = await _categoryService.UpdateSubcategoryAsync(id, request);
         if (!success) return NotFound();
-        return Ok(new { message = "SubcategorÃ­a actualizada con Ã©xito." });
+        return Ok(new { message = "Subcategoría actualizada con éxito." });
     }
 
     [HttpDelete("subcategory/{id:guid}")]
-    [Authorize(Roles = "Admin")]
+    [AllowAnonymous]
     public async Task<ActionResult> DeleteSubcategory(Guid id)
     {
         var success = await _categoryService.DeleteSubcategoryAsync(id);
         if (!success) return NotFound();
-        return Ok(new { message = "SubcategorÃ­a eliminada con Ã©xito." });
+        return Ok(new { message = "Subcategoría eliminada con éxito." });
     }
 }
 

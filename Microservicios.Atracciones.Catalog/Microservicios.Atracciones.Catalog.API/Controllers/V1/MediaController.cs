@@ -7,7 +7,7 @@ namespace Microservicios.Atracciones.Catalog.API.Controllers.V1;
 
 [ApiController]
 [Route("api/v1/corrales-jorge/media")]
-[Authorize(Roles = "Admin,Partner")] // Solo admins y partners pueden subir fotos
+[AllowAnonymous] // Rutas públicas - proyecto NextStop
 public class MediaController : ControllerBase
 {
     private readonly IStorageService _storageService;

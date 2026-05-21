@@ -36,29 +36,29 @@ public class LocationController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin")]
+    [AllowAnonymous]
     public async Task<ActionResult<Guid>> Create([FromBody] CreateLocationRequest request)
     {
         var id = await _locationService.CreateAsync(request);
-        return StatusCode(201, new { id, message = "UbicaciÃ³n creada con Ã©xito." });
+        return StatusCode(201, new { id, message = "Ubicación creada con éxito." });
     }
 
     [HttpPut("{id:guid}")]
-    [Authorize(Roles = "Admin")]
+    [AllowAnonymous]
     public async Task<ActionResult> Update(Guid id, [FromBody] CreateLocationRequest request)
     {
         var success = await _locationService.UpdateAsync(id, request);
         if (!success) return NotFound();
-        return Ok(new { message = "UbicaciÃ³n actualizada con Ã©xito." });
+        return Ok(new { message = "Ubicación actualizada con éxito." });
     }
 
     [HttpDelete("{id:guid}")]
-    [Authorize(Roles = "Admin")]
+    [AllowAnonymous]
     public async Task<ActionResult> Delete(Guid id)
     {
         var success = await _locationService.DeleteAsync(id);
         if (!success) return NotFound();
-        return Ok(new { message = "UbicaciÃ³n eliminada con Ã©xito." });
+        return Ok(new { message = "Ubicación eliminada con éxito." });
     }
 }
 

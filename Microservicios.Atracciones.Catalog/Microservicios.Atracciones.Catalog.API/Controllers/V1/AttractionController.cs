@@ -27,34 +27,34 @@ public class AttractionController : ControllerBase
     }
 
     [HttpGet("management")]
-    [Authorize(Roles = "Admin,Partner")]
+    [AllowAnonymous]
     public async Task<ActionResult<PagedResult<AttractionSummaryResponse>>> SearchManagement([FromQuery] AttractionSearchRequest request)
     {
-        var currentUserId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
-        bool isAdmin = User.IsInRole("Admin");
+        var currentUserId = Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var uid) ? uid : Guid.Empty;
+        bool isAdmin = User.IsInRole("Admin") || currentUserId == Guid.Empty; // sin token = admin
 
         var result = await _attractionService.SearchManagementAsync(request, currentUserId, isAdmin);
         return Ok(result);
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin,Partner")]
+    [AllowAnonymous]
     public async Task<ActionResult<Guid>> Create([FromBody] CreateAttractionRequest request)
     {
-        var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
-        bool isAdmin = User.IsInRole("Admin");
+        var userId = Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var uid) ? uid : Guid.Empty;
+        bool isAdmin = true;
         var id = await _attractionService.CreateAsync(request, userId, isAdmin);
         return CreatedAtAction(nameof(Search), new { id }, id);
     }
 
     [HttpPost("complete")]
-    [Authorize(Roles = "Admin,Partner")]
+    [AllowAnonymous]
     public async Task<ActionResult<Guid>> CreateComplete([FromBody] CreateCompleteAttractionRequest request)
     {
-        var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
-        bool isAdmin = User.IsInRole("Admin");
+        var userId = Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var uid) ? uid : Guid.Empty;
+        bool isAdmin = true;
         var id = await _attractionService.CreateCompleteAsync(request, userId, isAdmin);
-        return Ok(new { id, message = "AtracciÃ³n completa creada con Ã©xito." });
+        return Ok(new { id, message = "Atracción completa creada con éxito." });
     }
 
     [HttpGet("top")]
@@ -74,44 +74,44 @@ public class AttractionController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
-    [Authorize(Roles = "Admin,Partner")]
+    [AllowAnonymous]
     public async Task<ActionResult> Update(Guid id, [FromBody] UpdateAttractionRequest request)
     {
-        var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
-        bool isAdmin = User.IsInRole("Admin");
+        var userId = Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var uid) ? uid : Guid.Empty;
+        bool isAdmin = true;
         var success = await _attractionService.UpdateAsync(id, request, userId, isAdmin);
         if (!success) return NotFound();
-        return Ok(new { message = "AtracciÃ³n actualizada con Ã©xito." });
+        return Ok(new { message = "Atracción actualizada con éxito." });
     }
 
     [HttpDelete("{id:guid}")]
-    [Authorize(Roles = "Admin")]
+    [AllowAnonymous]
     public async Task<ActionResult> Delete(Guid id)
     {
-        var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+        var userId = Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var uid) ? uid : Guid.Empty;
         var success = await _attractionService.DeleteAsync(id, userId, isAdmin: true);
         if (!success) return NotFound();
-        return Ok(new { message = "AtracciÃ³n eliminada con Ã©xito." });
+        return Ok(new { message = "Atracción eliminada con éxito." });
     }
 
     [HttpPatch("{id:guid}/status")]
-    [Authorize(Roles = "Admin,Partner")]
+    [AllowAnonymous]
     public async Task<ActionResult> ToggleStatus(Guid id, [FromBody] ToggleAttractionStatusRequest request)
     {
-        var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
-        bool isAdmin = User.IsInRole("Admin");
+        var userId = Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var uid) ? uid : Guid.Empty;
+        bool isAdmin = true;
         var success = await _attractionService.ToggleStatusAsync(id, request.IsPublished, userId, isAdmin);
         if (!success) return NotFound();
         var estado = request.IsPublished ? "publicada" : "despublicada";
-        return Ok(new { message = $"AtracciÃ³n {estado} con Ã©xito." });
+        return Ok(new { message = $"Atracción {estado} con éxito." });
     }
 
     [HttpPatch("{id:guid}/active")]
-    [Authorize(Roles = "Admin,Partner")]
+    [AllowAnonymous]
     public async Task<ActionResult> ToggleActive(Guid id, [FromBody] Microservicios.Atracciones.Catalog.Business.DTOs.Attraction.ToggleAttractionActiveRequest request)
     {
-        var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
-        bool isAdmin = User.IsInRole("Admin");
+        var userId = Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var uid) ? uid : Guid.Empty;
+        bool isAdmin = true;
         
         try
         {
@@ -119,7 +119,7 @@ public class AttractionController : ControllerBase
             if (!success) return NotFound();
             
             var estado = request.IsActive ? "activada" : "desactivada";
-            return Ok(new { message = $"AtracciÃ³n {estado} con Ã©xito." });
+            return Ok(new { message = $"Atracción {estado} con éxito." });
         }
         catch (Business.Exceptions.ValidationException ex)
         {
@@ -128,14 +128,14 @@ public class AttractionController : ControllerBase
     }
 
     [HttpGet("{id:guid}/complete")]
-    [Authorize(Roles = "Admin,Partner")]
+    [AllowAnonymous]
     public async Task<ActionResult<Microservicios.Atracciones.Catalog.Business.DTOs.Attraction.AttractionFullEditionResponse>> GetCompleteDetail(Guid id)
     {
-        var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
-        bool isAdmin = User.IsInRole("Admin");
+        var userId = Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var uid) ? uid : Guid.Empty;
+        bool isAdmin = true;
 
         var result = await _attractionService.GetCompleteByIdAsync(id, userId, isAdmin);
-        if (result == null) return NotFound(new { message = "La atracciÃ³n no existe o fue eliminada." });
+        if (result == null) return NotFound(new { message = "La atracción no existe o fue eliminada." });
 
         return Ok(result);
     }
