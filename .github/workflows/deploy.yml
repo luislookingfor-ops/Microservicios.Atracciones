@@ -5,12 +5,6 @@ on:
     branches: [ main ]
   workflow_dispatch: # Permite ejecución manual desde GitHub
 
-env:
-  REGISTRY_LOGIN_SERVER: ${{ secrets.REGISTRY_LOGIN_SERVER }}
-  REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
-  REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
-  RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
-
 jobs:
   # ============================================================
   # JOB 1: Build & Push - Billing
@@ -24,19 +18,19 @@ jobs:
       - name: Login to Azure Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY_LOGIN_SERVER }}
-          username: ${{ env.REGISTRY_USERNAME }}
-          password: ${{ env.REGISTRY_PASSWORD }}
+          registry: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Build & Push Billing image
         run: |
           docker build \
             -f Microservicios.Atracciones.Billing/Microservicios.Atracciones.Billing.API/Dockerfile \
-            -t ${{ env.REGISTRY_LOGIN_SERVER }}/billing-api:${{ github.sha }} \
-            -t ${{ env.REGISTRY_LOGIN_SERVER }}/billing-api:latest \
+            -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/billing-api:${{ github.sha }} \
+            -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/billing-api:latest \
             .
-          docker push ${{ env.REGISTRY_LOGIN_SERVER }}/billing-api:${{ github.sha }}
-          docker push ${{ env.REGISTRY_LOGIN_SERVER }}/billing-api:latest
+          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/billing-api:${{ github.sha }}
+          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/billing-api:latest
 
   # ============================================================
   # JOB 2: Build & Push - Booking
@@ -50,19 +44,19 @@ jobs:
       - name: Login to Azure Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY_LOGIN_SERVER }}
-          username: ${{ env.REGISTRY_USERNAME }}
-          password: ${{ env.REGISTRY_PASSWORD }}
+          registry: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Build & Push Booking image
         run: |
           docker build \
             -f Microservicios.Atracciones.Booking/Microservicios.Atracciones.Booking.API/Dockerfile \
-            -t ${{ env.REGISTRY_LOGIN_SERVER }}/booking-api:${{ github.sha }} \
-            -t ${{ env.REGISTRY_LOGIN_SERVER }}/booking-api:latest \
+            -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/booking-api:${{ github.sha }} \
+            -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/booking-api:latest \
             .
-          docker push ${{ env.REGISTRY_LOGIN_SERVER }}/booking-api:${{ github.sha }}
-          docker push ${{ env.REGISTRY_LOGIN_SERVER }}/booking-api:latest
+          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/booking-api:${{ github.sha }}
+          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/booking-api:latest
 
   # ============================================================
   # JOB 3: Build & Push - Catalog
@@ -76,19 +70,19 @@ jobs:
       - name: Login to Azure Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY_LOGIN_SERVER }}
-          username: ${{ env.REGISTRY_USERNAME }}
-          password: ${{ env.REGISTRY_PASSWORD }}
+          registry: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Build & Push Catalog image
         run: |
           docker build \
             -f Microservicios.Atracciones.Catalog/Microservicios.Atracciones.Catalog.API/Dockerfile \
-            -t ${{ env.REGISTRY_LOGIN_SERVER }}/catalog-api:${{ github.sha }} \
-            -t ${{ env.REGISTRY_LOGIN_SERVER }}/catalog-api:latest \
+            -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/catalog-api:${{ github.sha }} \
+            -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/catalog-api:latest \
             .
-          docker push ${{ env.REGISTRY_LOGIN_SERVER }}/catalog-api:${{ github.sha }}
-          docker push ${{ env.REGISTRY_LOGIN_SERVER }}/catalog-api:latest
+          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/catalog-api:${{ github.sha }}
+          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/catalog-api:latest
 
   # ============================================================
   # JOB 4: Build & Push - Identify
@@ -102,19 +96,19 @@ jobs:
       - name: Login to Azure Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY_LOGIN_SERVER }}
-          username: ${{ env.REGISTRY_USERNAME }}
-          password: ${{ env.REGISTRY_PASSWORD }}
+          registry: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Build & Push Identify image
         run: |
           docker build \
             -f Microservicios.Atracciones.Identify/Microservicios.Atracciones.Identify.API/Dockerfile \
-            -t ${{ env.REGISTRY_LOGIN_SERVER }}/identify-api:${{ github.sha }} \
-            -t ${{ env.REGISTRY_LOGIN_SERVER }}/identify-api:latest \
+            -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/identify-api:${{ github.sha }} \
+            -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/identify-api:latest \
             .
-          docker push ${{ env.REGISTRY_LOGIN_SERVER }}/identify-api:${{ github.sha }}
-          docker push ${{ env.REGISTRY_LOGIN_SERVER }}/identify-api:latest
+          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/identify-api:${{ github.sha }}
+          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/identify-api:latest
 
   # ============================================================
   # JOB 5: Deploy all Container Apps
@@ -132,46 +126,46 @@ jobs:
         uses: azure/container-apps-deploy-action@v2
         with:
           containerAppName: ca-billing
-          resourceGroup: ${{ env.RESOURCE_GROUP }}
-          imageToDeploy: ${{ env.REGISTRY_LOGIN_SERVER }}/billing-api:${{ github.sha }}
-          registryUrl: ${{ env.REGISTRY_LOGIN_SERVER }}
-          registryUsername: ${{ env.REGISTRY_USERNAME }}
-          registryPassword: ${{ env.REGISTRY_PASSWORD }}
+          resourceGroup: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          imageToDeploy: ${{ secrets.REGISTRY_LOGIN_SERVER }}/billing-api:${{ github.sha }}
+          registryUrl: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          registryUsername: ${{ secrets.REGISTRY_USERNAME }}
+          registryPassword: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Deploy Booking to Container Apps
         uses: azure/container-apps-deploy-action@v2
         with:
           containerAppName: ca-booking
-          resourceGroup: ${{ env.RESOURCE_GROUP }}
-          imageToDeploy: ${{ env.REGISTRY_LOGIN_SERVER }}/booking-api:${{ github.sha }}
-          registryUrl: ${{ env.REGISTRY_LOGIN_SERVER }}
-          registryUsername: ${{ env.REGISTRY_USERNAME }}
-          registryPassword: ${{ env.REGISTRY_PASSWORD }}
+          resourceGroup: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          imageToDeploy: ${{ secrets.REGISTRY_LOGIN_SERVER }}/booking-api:${{ github.sha }}
+          registryUrl: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          registryUsername: ${{ secrets.REGISTRY_USERNAME }}
+          registryPassword: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Deploy Catalog to Container Apps
         uses: azure/container-apps-deploy-action@v2
         with:
           containerAppName: ca-catalog
-          resourceGroup: ${{ env.RESOURCE_GROUP }}
-          imageToDeploy: ${{ env.REGISTRY_LOGIN_SERVER }}/catalog-api:${{ github.sha }}
-          registryUrl: ${{ env.REGISTRY_LOGIN_SERVER }}
-          registryUsername: ${{ env.REGISTRY_USERNAME }}
-          registryPassword: ${{ env.REGISTRY_PASSWORD }}
+          resourceGroup: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          imageToDeploy: ${{ secrets.REGISTRY_LOGIN_SERVER }}/catalog-api:${{ github.sha }}
+          registryUrl: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          registryUsername: ${{ secrets.REGISTRY_USERNAME }}
+          registryPassword: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Deploy Identify to Container Apps
         uses: azure/container-apps-deploy-action@v2
         with:
           containerAppName: ca-identify
-          resourceGroup: ${{ env.RESOURCE_GROUP }}
-          imageToDeploy: ${{ env.REGISTRY_LOGIN_SERVER }}/identify-api:${{ github.sha }}
-          registryUrl: ${{ env.REGISTRY_LOGIN_SERVER }}
-          registryUsername: ${{ env.REGISTRY_USERNAME }}
-          registryPassword: ${{ env.REGISTRY_PASSWORD }}
+          resourceGroup: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          imageToDeploy: ${{ secrets.REGISTRY_LOGIN_SERVER }}/identify-api:${{ github.sha }}
+          registryUrl: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          registryUsername: ${{ secrets.REGISTRY_USERNAME }}
+          registryPassword: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Get deployed URLs
         run: |
           echo "=== URLs de los Microservicios Desplegados ==="
-          echo "Billing:  $(az containerapp show -n ca-billing  -g ${{ env.RESOURCE_GROUP }} --query 'properties.configuration.ingress.fqdn' -o tsv)"
-          echo "Booking:  $(az containerapp show -n ca-booking  -g ${{ env.RESOURCE_GROUP }} --query 'properties.configuration.ingress.fqdn' -o tsv)"
-          echo "Catalog:  $(az containerapp show -n ca-catalog  -g ${{ env.RESOURCE_GROUP }} --query 'properties.configuration.ingress.fqdn' -o tsv)"
-          echo "Identify: $(az containerapp show -n ca-identify -g ${{ env.RESOURCE_GROUP }} --query 'properties.configuration.ingress.fqdn' -o tsv)"
+          echo "Billing:  $(az containerapp show -n ca-billing  -g ${{ secrets.AZURE_RESOURCE_GROUP }} --query 'properties.configuration.ingress.fqdn' -o tsv)"
+          echo "Booking:  $(az containerapp show -n ca-booking  -g ${{ secrets.AZURE_RESOURCE_GROUP }} --query 'properties.configuration.ingress.fqdn' -o tsv)"
+          echo "Catalog:  $(az containerapp show -n ca-catalog  -g ${{ secrets.AZURE_RESOURCE_GROUP }} --query 'properties.configuration.ingress.fqdn' -o tsv)"
+          echo "Identify: $(az containerapp show -n ca-identify -g ${{ secrets.AZURE_RESOURCE_GROUP }} --query 'properties.configuration.ingress.fqdn' -o tsv)"
