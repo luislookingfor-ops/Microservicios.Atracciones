@@ -123,6 +123,7 @@ public class AttractionService : IAttractionService
             MeetingPoint = request.MeetingPoint,
             DifficultyLevel = request.DifficultyLevel,
             ManagedById = isAdmin ? null : userId,
+            IsPublished = request.IsPublished,
             Slug = GenerateSlug(request.Name)
         };
 
@@ -145,7 +146,7 @@ public class AttractionService : IAttractionService
             MeetingPoint = request.MeetingPoint,
             DifficultyLevel = request.DifficultyLevel,
             ManagedById = isAdmin ? null : userId,
-            IsPublished = false,
+            IsPublished = request.IsPublished,
             Slug = GenerateSlug(request.Name)
         };
 

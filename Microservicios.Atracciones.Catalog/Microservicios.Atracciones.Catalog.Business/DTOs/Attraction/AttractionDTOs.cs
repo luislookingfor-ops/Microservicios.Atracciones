@@ -142,6 +142,7 @@ public class CreateAttractionRequest
     public decimal? Longitude { get; set; }
     public string? MeetingPoint { get; set; }
     public string? DifficultyLevel { get; set; } // "easy" | "moderate" | "hard"
+    public bool IsPublished { get; set; } = true;
 }
 
 /// <summary>PeticiÃ³n para editar una atracciÃ³n existente.</summary>

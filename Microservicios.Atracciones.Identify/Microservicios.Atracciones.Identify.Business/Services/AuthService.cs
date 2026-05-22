@@ -34,13 +34,6 @@ public class AuthService : IAuthService
         if (user == null || !BCryptNet.Verify(request.Password, user.PasswordHash))
             throw new UnauthorizedBusinessException("Credenciales inválidas.");
 
-        // Validar que el usuario sea exclusivamente un Cliente
-        var roles = user.UserRoles?.Select(ur => ur.Role?.Name).Where(n => n != null).ToList() ?? [];
-        var isAdminOrPartner = roles.Any(r => r == "Admin" || r == "Partner");
-
-        if (isAdminOrPartner)
-            throw new UnauthorizedBusinessException("Esta ruta es exclusiva para clientes. Usa /login-admin para acceder al panel administrativo.");
-
         return GenerateTokenResponse(user);
     }
 
@@ -54,13 +47,6 @@ public class AuthService : IAuthService
 
         if (user == null || !BCryptNet.Verify(request.Password, user.PasswordHash))
             throw new UnauthorizedBusinessException("Credenciales inválidas.");
-
-        // Validar que el usuario sea Admin o Partner (no Cliente)
-        var roles = user.UserRoles?.Select(ur => ur.Role?.Name).Where(n => n != null).ToList() ?? [];
-        var hasAdminAccess = roles.Any(r => r == "Admin" || r == "Partner");
-
-        if (!hasAdminAccess)
-            throw new UnauthorizedBusinessException("Esta ruta es exclusiva para administradores y partners. Usa /login para acceder como cliente.");
 
         return GenerateTokenResponse(user);
     }
