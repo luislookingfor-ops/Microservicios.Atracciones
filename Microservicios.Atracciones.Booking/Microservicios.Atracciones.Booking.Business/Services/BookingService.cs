@@ -65,6 +65,7 @@ public class BookingService : IBookingService
             AttractionId = request.AttractionId,
             Details = request.Passengers.Select(p => new BookingDetailNode
             {
+                ProductOptionId = request.ProductOptionId,
                 PriceTierId = p.PriceTierId,
                 PriceTierLabel = p.PriceTierLabel,
                 AttractionName = request.AttractionName,

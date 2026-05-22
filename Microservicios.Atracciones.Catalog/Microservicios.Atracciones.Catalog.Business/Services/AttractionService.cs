@@ -292,6 +292,7 @@ public class AttractionService : IAttractionService
             MeetingPoint = request.MeetingPoint,
             DifficultyLevel = request.DifficultyLevel,
             IsPublished = existing.IsPublished,
+            Slug = GenerateSlug(request.Name)
         };
 
         return await _attractionData.UpdateAsync(updated);

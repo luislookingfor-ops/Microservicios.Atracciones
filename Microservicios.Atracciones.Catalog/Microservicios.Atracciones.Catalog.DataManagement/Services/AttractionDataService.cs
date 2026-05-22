@@ -257,6 +257,11 @@ public class AttractionDataService : IAttractionDataService
         var existing = await _unitOfWork.Attractions.GetByIdAsync(attraction.Id);
         if (existing == null) return false;
 
+        if (existing.Name != attraction.Name)
+        {
+            existing.Slug = attraction.Slug;
+        }
+
         existing.Name = attraction.Name;
         existing.LocationId = attraction.LocationId;
         existing.SubcategoryId = attraction.SubcategoryId;

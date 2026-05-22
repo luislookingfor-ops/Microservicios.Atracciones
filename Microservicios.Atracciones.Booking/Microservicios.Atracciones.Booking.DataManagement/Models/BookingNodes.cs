@@ -29,6 +29,7 @@ public class BookingNode
 
 public class BookingDetailNode
 {
+    public Guid ProductOptionId { get; set; }
     public Guid PriceTierId { get; set; }
     public string PriceTierLabel { get; set; } = string.Empty;
     public string AttractionName { get; set; } = string.Empty;
@@ -40,3 +41,4 @@ public class BookingDetailNode
     public short Quantity { get; set; }
     public decimal UnitPrice { get; set; }
 }
+

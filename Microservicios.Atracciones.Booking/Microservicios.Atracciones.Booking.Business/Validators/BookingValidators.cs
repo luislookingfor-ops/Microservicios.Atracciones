@@ -10,6 +10,9 @@ public class CreateBookingValidator : AbstractValidator<CreateBookingRequest>
         RuleFor(x => x.SlotId)
             .NotEmpty().WithMessage("El slot de reserva es requerido.");
 
+        RuleFor(x => x.ProductOptionId)
+            .NotEmpty().WithMessage("La opción de producto es requerida.");
+
         RuleFor(x => x.Passengers)
             .NotEmpty().WithMessage("Debe incluir al menos un pasajero.")
             .Must(p => p.Count <= 30).WithMessage("No se pueden reservar más de 30 pasajeros a la vez.");

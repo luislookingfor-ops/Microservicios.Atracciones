@@ -6,6 +6,7 @@ namespace Microservicios.Atracciones.Booking.Business.DTOs.Booking;
 public class CreateBookingRequest
 {
     public Guid SlotId { get; set; }
+    public Guid ProductOptionId { get; set; }
     public Guid AttractionId { get; set; }          // Identificador lógico de la atracción
     public string AttractionName { get; set; } = string.Empty; // Snapshot del nombre
     public string ProductTitle { get; set; } = string.Empty;   // Snapshot del nombre de la opción/producto
