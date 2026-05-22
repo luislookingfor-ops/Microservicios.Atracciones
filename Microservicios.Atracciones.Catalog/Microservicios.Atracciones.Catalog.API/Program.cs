@@ -86,9 +86,9 @@ builder.Services.AddCors(options =>
 // ======================================================
 // 4. JWT AUTHENTICATION (Solo ValidaciÃ³n)
 // ======================================================
-var jwtKey = builder.Configuration["Jwt:Key"] ?? "MicroserviciosAtraccionesCatalog_Super_Secret_Key_2026_Minimum_Length_Requirement_Long_String";
-var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "MicroserviciosAtraccionesCatalog";
-var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "MicroserviciosAtraccionesCatalogUsers";
+var jwtKey = builder.Configuration["Jwt:Key"] ?? "Microservicios.Atracciones.Identify_Super_Secret_Key_2026_Minimum_Length_Requirement_Long_String";
+var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "Microservicios.Atracciones.Identify";
+var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "Microservicios.Atracciones.IdentifyUsers";
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

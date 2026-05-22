@@ -57,9 +57,9 @@ builder.Services.AddCors(options =>
         policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 });
 
-var jwtKey = builder.Configuration["Jwt:Key"] ?? "BookingService_Super_Secret_Key_2026_Minimum_Length_Requirement_Long_String"; 
-var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "BookingService";
-var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "BookingServiceUsers";
+var jwtKey = builder.Configuration["Jwt:Key"] ?? "Microservicios.Atracciones.Identify_Super_Secret_Key_2026_Minimum_Length_Requirement_Long_String"; 
+var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "Microservicios.Atracciones.Identify";
+var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "Microservicios.Atracciones.IdentifyUsers";
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

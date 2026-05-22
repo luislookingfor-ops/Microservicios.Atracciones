@@ -39,9 +39,9 @@ builder.Services.AddCors(options =>
 });
 
 // 4. JWT AUTHENTICATION
-var jwtKey = builder.Configuration["Jwt:Key"] ?? "BillingService_Super_Secret_Key_2026";
-var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "BillingService";
-var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "BillingServiceUsers";
+var jwtKey = builder.Configuration["Jwt:Key"] ?? "Microservicios.Atracciones.Identify_Super_Secret_Key_2026_Minimum_Length_Requirement_Long_String";
+var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "Microservicios.Atracciones.Identify";
+var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "Microservicios.Atracciones.IdentifyUsers";
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
