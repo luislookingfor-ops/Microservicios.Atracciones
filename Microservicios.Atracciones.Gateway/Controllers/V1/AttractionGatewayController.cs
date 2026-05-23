@@ -81,14 +81,23 @@ namespace Microservicios.Atracciones.Gateway.Controllers.V1
                     return new AtraccionDto
                     {
                         Id = item.Id,
-                        Nombre = item.Name,
-                        Descripcion = item.DescriptionShort,
-                        Precio = item.StartingPrice ?? 0,
-                        Moneda = item.CurrencyCode ?? "USD",
-                        Ubicacion = item.LocationName,
-                        ImagenUrl = item.MainImageUrl,
-                        Disponible = hasAvailability,
-                        Slug = item.Slug
+                        Slug = item.Slug,
+                        Name = item.Name,
+                        DescriptionShort = item.DescriptionShort,
+                        LocationName = item.LocationName,
+                        LocationCountryCode = item.LocationCountryCode,
+                        CategoryName = item.CategoryName,
+                        SubcategoryName = item.SubcategoryName,
+                        RatingAverage = item.RatingAverage,
+                        RatingCount = item.RatingCount,
+                        DifficultyLevel = item.DifficultyLevel,
+                        MainImageUrl = item.MainImageUrl,
+                        StartingPrice = item.StartingPrice ?? 0,
+                        CurrencyCode = item.CurrencyCode ?? "USD",
+                        IsActive = item.IsActive,
+                        IsPublished = item.IsPublished,
+                        ModalityCount = item.ModalityCount,
+                        Disponible = hasAvailability
                     };
                 }).ToList();
 
@@ -104,7 +113,7 @@ namespace Microservicios.Atracciones.Gateway.Controllers.V1
                 return Ok(new ApiResponseListAtraccion
                 {
                     Success = true,
-                    Data = finalData
+                    Data = new AttractionListData { Items = finalData }
                 });
             }
             catch (Exception ex)
@@ -187,14 +196,23 @@ namespace Microservicios.Atracciones.Gateway.Controllers.V1
                 var detailDto = new AtraccionDetalleDto
                 {
                     Id = attractionDetail.Id,
-                    Nombre = attractionDetail.Name,
-                    Descripcion = attractionDetail.DescriptionFull ?? attractionDetail.DescriptionShort,
-                    Precio = minPrice,
-                    Moneda = currency,
-                    Ubicacion = attractionDetail.LocationName,
-                    ImagenUrl = mainImage,
-                    Disponible = hasAvailability,
                     Slug = attractionDetail.Slug,
+                    Name = attractionDetail.Name,
+                    DescriptionShort = attractionDetail.DescriptionShort,
+                    LocationName = attractionDetail.LocationName,
+                    LocationCountryCode = attractionDetail.LocationCountryCode,
+                    CategoryName = attractionDetail.CategoryName,
+                    SubcategoryName = attractionDetail.SubcategoryName,
+                    RatingAverage = attractionDetail.RatingAverage,
+                    RatingCount = attractionDetail.RatingCount,
+                    DifficultyLevel = attractionDetail.DifficultyLevel,
+                    MainImageUrl = mainImage,
+                    StartingPrice = minPrice,
+                    CurrencyCode = currency,
+                    IsActive = attractionDetail.IsActive,
+                    IsPublished = attractionDetail.IsPublished,
+                    ModalityCount = attractionDetail.ModalityCount,
+                    Disponible = hasAvailability,
                     Modalidades = modalities
                 };
 
@@ -262,9 +280,18 @@ namespace Microservicios.Atracciones.Gateway.Controllers.V1
             public string Name { get; set; } = string.Empty;
             public string? DescriptionShort { get; set; }
             public string LocationName { get; set; } = string.Empty;
+            public string LocationCountryCode { get; set; } = string.Empty;
+            public string? CategoryName { get; set; }
+            public string? SubcategoryName { get; set; }
+            public decimal RatingAverage { get; set; }
+            public int RatingCount { get; set; }
+            public string? DifficultyLevel { get; set; }
             public string? MainImageUrl { get; set; }
             public decimal? StartingPrice { get; set; }
             public string CurrencyCode { get; set; } = "USD";
+            public bool IsActive { get; set; }
+            public bool IsPublished { get; set; }
+            public int ModalityCount { get; set; }
         }
 
         private class CatalogAttractionDetail
@@ -275,8 +302,17 @@ namespace Microservicios.Atracciones.Gateway.Controllers.V1
             public string? DescriptionShort { get; set; }
             public string? DescriptionFull { get; set; }
             public string LocationName { get; set; } = string.Empty;
+            public string LocationCountryCode { get; set; } = string.Empty;
+            public string? CategoryName { get; set; }
+            public string? SubcategoryName { get; set; }
+            public decimal RatingAverage { get; set; }
+            public int RatingCount { get; set; }
+            public string? DifficultyLevel { get; set; }
             public List<CatalogMedia> Gallery { get; set; } = new();
             public List<CatalogProduct> Products { get; set; } = new();
+            public bool IsActive { get; set; }
+            public bool IsPublished { get; set; }
+            public int ModalityCount { get; set; }
         }
 
         private class CatalogMedia
