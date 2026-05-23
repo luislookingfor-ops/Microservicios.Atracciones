@@ -64,10 +64,12 @@ namespace Microservicios.Atracciones.Gateway.Controllers.V1
                 }
 
                 var catalogContent = await catalogResponse.Content.ReadAsStringAsync();
-                var catalogResult = JsonSerializer.Deserialize<CatalogPagedResult<CatalogAttractionSummary>>(catalogContent, new JsonSerializerOptions
+                var catalogResultWrapper = JsonSerializer.Deserialize<CatalogApiResponse<CatalogPagedResult<CatalogAttractionSummary>>>(catalogContent, new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 });
+
+                var catalogResult = catalogResultWrapper?.Data;
 
                 if (catalogResult == null || catalogResult.Items == null)
                 {
@@ -154,10 +156,12 @@ namespace Microservicios.Atracciones.Gateway.Controllers.V1
                 }
 
                 var catalogContent = await catalogResponse.Content.ReadAsStringAsync();
-                var attractionDetail = JsonSerializer.Deserialize<CatalogAttractionDetail>(catalogContent, new JsonSerializerOptions
+                var catalogResultWrapper = JsonSerializer.Deserialize<CatalogApiResponse<CatalogAttractionDetail>>(catalogContent, new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 });
+
+                var attractionDetail = catalogResultWrapper?.Data;
 
                 if (attractionDetail == null)
                 {
@@ -211,7 +215,7 @@ namespace Microservicios.Atracciones.Gateway.Controllers.V1
                     CurrencyCode = currency,
                     IsActive = attractionDetail.IsActive,
                     IsPublished = attractionDetail.IsPublished,
-                    ModalityCount = attractionDetail.ModalityCount,
+                    ModalityCount = attractionDetail.Products.Count,
                     Disponible = hasAvailability,
                     Modalidades = modalities
                 };
@@ -267,6 +271,12 @@ namespace Microservicios.Atracciones.Gateway.Controllers.V1
         }
 
         // Helper classes for Deserializing backend responses
+        private class CatalogApiResponse<T>
+        {
+            public bool Success { get; set; }
+            public T? Data { get; set; }
+        }
+
         private class CatalogPagedResult<T>
         {
             public List<T> Items { get; set; } = new();
