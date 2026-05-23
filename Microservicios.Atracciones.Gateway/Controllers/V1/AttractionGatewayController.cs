@@ -129,7 +129,7 @@ namespace Microservicios.Atracciones.Gateway.Controllers.V1
             }
         }
 
-        [HttpGet("{slug}")]
+        [HttpGet("{slug:regex(^(?!management$|complete$).*$)}")]
         [AllowAnonymous]
         public async Task<ActionResult<ApiResponseAtraccionDetalle>> DetalleAtraccion(string slug)
         {
