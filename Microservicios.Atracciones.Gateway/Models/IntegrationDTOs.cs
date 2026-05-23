@@ -36,6 +36,34 @@ namespace Microservicios.Atracciones.Gateway.Models
     public class AtraccionDetalleDto : AtraccionDto
     {
         public List<ModalidadDto> Modalidades { get; set; } = new();
+
+        // Compatibility DTOs for frontend React code
+        public List<ProductDto> Products { get; set; } = new();
+        public List<MediaDto> Gallery { get; set; } = new();
+    }
+
+    public class ProductDto
+    {
+        public Guid Id { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public bool IsPrivate { get; set; }
+        public short? MaxGroupSize { get; set; }
+        public List<PriceTierDto> PriceTiers { get; set; } = new();
+    }
+
+    public class PriceTierDto
+    {
+        public Guid Id { get; set; }
+        public string CategoryName { get; set; } = string.Empty;
+        public decimal Price { get; set; }
+        public string CurrencyCode { get; set; } = "USD";
+    }
+
+    public class MediaDto
+    {
+        public string Url { get; set; } = string.Empty;
+        public bool IsMain { get; set; }
     }
 
     public class ModalidadDto

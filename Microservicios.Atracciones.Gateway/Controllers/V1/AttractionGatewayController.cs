@@ -217,7 +217,27 @@ namespace Microservicios.Atracciones.Gateway.Controllers.V1
                     IsPublished = attractionDetail.IsPublished,
                     ModalityCount = attractionDetail.Products.Count,
                     Disponible = hasAvailability,
-                    Modalidades = modalities
+                    Modalidades = modalities,
+                    Products = attractionDetail.Products.Select(prod => new ProductDto
+                    {
+                        Id = prod.Id,
+                        Title = prod.Title,
+                        Description = prod.Description,
+                        IsPrivate = prod.IsPrivate,
+                        MaxGroupSize = prod.MaxGroupSize,
+                        PriceTiers = prod.PriceTiers.Select(pt => new PriceTierDto
+                        {
+                            Id = pt.Id,
+                            CategoryName = pt.CategoryName,
+                            Price = pt.Price,
+                            CurrencyCode = pt.CurrencyCode
+                        }).ToList()
+                    }).ToList(),
+                    Gallery = attractionDetail.Gallery.Select(media => new MediaDto
+                    {
+                        Url = media.Url,
+                        IsMain = media.IsMain
+                    }).ToList()
                 };
 
                 return Ok(new ApiResponseAtraccionDetalle
@@ -336,11 +356,15 @@ namespace Microservicios.Atracciones.Gateway.Controllers.V1
             public Guid Id { get; set; }
             public string Title { get; set; } = string.Empty;
             public string? Description { get; set; }
+            public bool IsPrivate { get; set; }
+            public short? MaxGroupSize { get; set; }
             public List<CatalogPriceTier> PriceTiers { get; set; } = new();
         }
 
         private class CatalogPriceTier
         {
+            public Guid Id { get; set; }
+            public string CategoryName { get; set; } = string.Empty;
             public decimal Price { get; set; }
             public string CurrencyCode { get; set; } = "USD";
         }
