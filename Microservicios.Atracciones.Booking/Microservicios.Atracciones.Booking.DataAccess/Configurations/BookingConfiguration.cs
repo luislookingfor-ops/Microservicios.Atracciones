@@ -57,7 +57,7 @@ public class BookingDetailConfiguration : IEntityTypeConfiguration<BookingDetail
         builder.Property(d => d.LastName).HasMaxLength(100).IsRequired();
         builder.Property(d => d.DocumentType).HasMaxLength(20);
         builder.Property(d => d.DocumentNumber).HasMaxLength(50).IsRequired();
-        builder.Ignore(d => d.UnitPrice);
+        builder.Property(d => d.UnitPrice).HasPrecision(12, 2);
         builder.Property(d => d.Quantity).HasDefaultValue((short)1);
         builder.Property(d => d.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
         

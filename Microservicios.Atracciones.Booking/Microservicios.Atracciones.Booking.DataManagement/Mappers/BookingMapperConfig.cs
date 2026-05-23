@@ -14,6 +14,7 @@ public class BookingMapperConfig : IRegister
             .Map(dest => dest.AttractionId, src => src.AttractionId)
             .Map(dest => dest.SlotDate, src => src.AvailabilitySlot != null ? src.AvailabilitySlot.SlotDate : default)
             .Map(dest => dest.SlotStartTime, src => src.AvailabilitySlot != null ? src.AvailabilitySlot.StartTime : default)
+            .Map(dest => dest.AttractionName, src => src.Details.FirstOrDefault() != null ? src.Details.First().AttractionNameSnapshot : string.Empty)
             .Map(dest => dest.Details, src => src.Details);
 
         config.NewConfig<BookingDetailEntity, BookingDetailNode>()
