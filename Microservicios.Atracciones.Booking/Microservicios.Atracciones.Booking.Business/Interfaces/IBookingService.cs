@@ -22,4 +22,13 @@ public interface IBookingService
     
     /// <summary>Cancela una reserva si aún está dentro del plazo de cancelación sin costo. Admite bypass de propiedad si es administrador.</summary>
     Task CancelBookingAsync(Guid userId, bool isAdmin, CancelBookingRequest request);
+
+    /// <summary>Consulta el monitor de horarios para una atracción y rango de fechas.</summary>
+    Task<List<ScheduleMonitorDto>> GetScheduleMonitorAsync(Guid attractionId, DateOnly from, DateOnly to);
+
+    /// <summary>Genera horarios de disponibilidad en lote a partir de una plantilla.</summary>
+    Task<GenerateSchedulesResponse> GenerateSchedulesAsync(GenerateSchedulesRequest request);
+
+    /// <summary>Elimina horarios en lote que no tengan reservas asociadas en un rango de fechas.</summary>
+    Task<BulkDeleteSchedulesResponse> BulkDeleteSchedulesAsync(BulkDeleteSchedulesRequest request);
 }

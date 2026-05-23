@@ -239,4 +239,45 @@ public class BookingService : IBookingService
         }
         return false;
     }
+
+    public async Task<List<ScheduleMonitorDto>> GetScheduleMonitorAsync(Guid attractionId, DateOnly from, DateOnly to)
+    {
+        var slots = await _inventoryData.GetSlotsForMonitorAsync(attractionId, from, to);
+        return slots.Select(s => new ScheduleMonitorDto
+        {
+            Id = s.Id,
+            AttractionId = s.ProductId,
+            SlotDate = s.SlotDate,
+            StartTime = s.StartTime,
+            EndTime = s.EndTime,
+            CapacityTotal = s.CapacityTotal,
+            CapacityAvailable = s.CapacityAvailable
+        }).ToList();
+    }
+
+    public async Task<GenerateSchedulesResponse> GenerateSchedulesAsync(GenerateSchedulesRequest request)
+    {
+        var times = request.Times.Select(TimeOnly.Parse).ToList();
+        var generated = await _inventoryData.GenerateSlotsAsync(
+            request.AttractionId,
+            request.DateFrom,
+            request.DateTo,
+            times,
+            request.WeekDays,
+            request.CapacityPerSlot
+        );
+
+        return new GenerateSchedulesResponse { Count = generated };
+    }
+
+    public async Task<BulkDeleteSchedulesResponse> BulkDeleteSchedulesAsync(BulkDeleteSchedulesRequest request)
+    {
+        var deleted = await _inventoryData.BulkDeleteSlotsAsync(
+            request.AttractionId,
+            request.From,
+            request.To
+        );
+
+        return new BulkDeleteSchedulesResponse { Deleted = deleted };
+    }
 }

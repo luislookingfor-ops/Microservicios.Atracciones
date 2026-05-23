@@ -98,4 +98,40 @@ public class BookingController : ControllerBase
         var result = await _bookingService.GetByIdAsync(id, currentUserId, isAdmin);
         return Ok(result);
     }
+
+    /// <summary>
+    /// Obtiene el monitor de horarios para una atracción y rango de fechas.
+    /// </summary>
+    [HttpGet("schedule/monitor")]
+    [Authorize(Roles = "Admin,Partner")]
+    public async Task<ActionResult<List<ScheduleMonitorDto>>> GetScheduleMonitor(
+        [FromQuery] Guid attractionId,
+        [FromQuery] DateOnly from,
+        [FromQuery] DateOnly to)
+    {
+        var result = await _bookingService.GetScheduleMonitorAsync(attractionId, from, to);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Genera horarios de disponibilidad en lote a partir de una plantilla.
+    /// </summary>
+    [HttpPost("schedule/generate")]
+    [Authorize(Roles = "Admin,Partner")]
+    public async Task<ActionResult<GenerateSchedulesResponse>> GenerateSchedules([FromBody] GenerateSchedulesRequest request)
+    {
+        var result = await _bookingService.GenerateSchedulesAsync(request);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Elimina de forma masiva los slots de disponibilidad sin reservas en un rango de fechas.
+    /// </summary>
+    [HttpPost("schedule/bulk-delete")]
+    [Authorize(Roles = "Admin,Partner")]
+    public async Task<ActionResult<BulkDeleteSchedulesResponse>> BulkDeleteSchedules([FromBody] BulkDeleteSchedulesRequest request)
+    {
+        var result = await _bookingService.BulkDeleteSchedulesAsync(request);
+        return Ok(result);
+    }
 }

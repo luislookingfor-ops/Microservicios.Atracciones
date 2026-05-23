@@ -71,7 +71,7 @@ Write-Host "¡Entorno de Container Apps '$ENVIRONMENT_NAME' creado!" -Foreground
 # 7. Crear las 4 Container Apps con una imagen placeholder (hola-mundo)
 # La imagen real será desplegada después por GitHub Actions
 Write-Host "`n[6/6] Creando las 4 Container Apps (Billing, Booking, Catalog, Identify)..." -ForegroundColor Yellow
-$microservices = @("ca-billing", "ca-booking", "ca-catalog", "ca-identify")
+$microservices = @("ca-billing", "ca-booking", "ca-catalog", "ca-identify", "gateway-api")
 $placeholderImage = "mcr.microsoft.com/azuredocs/aci-helloworld:latest"
 
 foreach ($service in $microservices) {

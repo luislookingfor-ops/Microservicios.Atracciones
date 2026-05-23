@@ -111,11 +111,37 @@ jobs:
           docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/identify-api:latest
 
   # ============================================================
+  # JOB 4.5: Build & Push - Gateway
+  # ============================================================
+  build-gateway:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Azure Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Build & Push Gateway image
+        run: |
+          docker build \
+            -f Microservicios.Atracciones.Gateway/Dockerfile \
+            -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/gateway-api:${{ github.sha }} \
+            -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/gateway-api:latest \
+            .
+          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/gateway-api:${{ github.sha }}
+          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/gateway-api:latest
+
+  # ============================================================
   # JOB 5: Deploy all Container Apps
   # ============================================================
   deploy:
     runs-on: ubuntu-latest
-    needs: [build-billing, build-booking, build-catalog, build-identify]
+    needs: [build-billing, build-booking, build-catalog, build-identify, build-gateway]
     steps:
       - name: Login to Azure
         uses: azure/login@v2
@@ -162,6 +188,16 @@ jobs:
           registryUsername: ${{ secrets.REGISTRY_USERNAME }}
           registryPassword: ${{ secrets.REGISTRY_PASSWORD }}
 
+      - name: Deploy Gateway to Container Apps
+        uses: azure/container-apps-deploy-action@v2
+        with:
+          containerAppName: gateway-api
+          resourceGroup: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          imageToDeploy: ${{ secrets.REGISTRY_LOGIN_SERVER }}/gateway-api:${{ github.sha }}
+          registryUrl: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          registryUsername: ${{ secrets.REGISTRY_USERNAME }}
+          registryPassword: ${{ secrets.REGISTRY_PASSWORD }}
+
       - name: Get deployed URLs
         run: |
           echo "=== URLs de los Microservicios Desplegados ==="
@@ -169,3 +205,4 @@ jobs:
           echo "Booking:  $(az containerapp show -n ca-booking  -g ${{ secrets.AZURE_RESOURCE_GROUP }} --query 'properties.configuration.ingress.fqdn' -o tsv)"
           echo "Catalog:  $(az containerapp show -n ca-catalog  -g ${{ secrets.AZURE_RESOURCE_GROUP }} --query 'properties.configuration.ingress.fqdn' -o tsv)"
           echo "Identify: $(az containerapp show -n ca-identify -g ${{ secrets.AZURE_RESOURCE_GROUP }} --query 'properties.configuration.ingress.fqdn' -o tsv)"
+          echo "Gateway:  $(az containerapp show -n gateway-api  -g ${{ secrets.AZURE_RESOURCE_GROUP }} --query 'properties.configuration.ingress.fqdn' -o tsv)"

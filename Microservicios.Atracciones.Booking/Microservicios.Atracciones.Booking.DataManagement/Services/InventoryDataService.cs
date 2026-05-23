@@ -61,4 +61,87 @@ public class InventoryDataService : IInventoryDataService
 
         return await _unitOfWork.CompleteAsync() > 0;
     }
+
+    public async Task<IEnumerable<DataAccess.Entities.AvailabilitySlot>> GetSlotsForMonitorAsync(Guid attractionId, DateOnly from, DateOnly to)
+    {
+        return await _unitOfWork.AvailabilitySlots.Query(asNoTracking: true)
+            .Where(s => s.ProductId == attractionId
+                        && s.SlotDate >= from
+                        && s.SlotDate <= to)
+            .OrderBy(s => s.SlotDate)
+            .ThenBy(s => s.StartTime)
+            .ToListAsync();
+    }
+
+    public async Task<int> GenerateSlotsAsync(Guid attractionId, DateOnly from, DateOnly to, List<TimeOnly> times, List<int> weekDays, short capacity)
+    {
+        var existingSlots = await _unitOfWork.AvailabilitySlots.Query(asNoTracking: true)
+            .Where(s => s.ProductId == attractionId
+                        && s.SlotDate >= from
+                        && s.SlotDate <= to)
+            .Select(s => new { s.SlotDate, s.StartTime })
+            .ToListAsync();
+
+        var existingSet = existingSlots
+            .Select(s => (s.SlotDate, s.StartTime))
+            .ToHashSet();
+
+        var newSlots = new List<DataAccess.Entities.AvailabilitySlot>();
+
+        var currentDate = from;
+        while (currentDate <= to)
+        {
+            int dayOfWeekInt = (int)currentDate.DayOfWeek;
+            
+            if (weekDays.Contains(dayOfWeekInt))
+            {
+                foreach (var time in times)
+                {
+                    if (!existingSet.Contains((currentDate, time)))
+                    {
+                        newSlots.Add(new DataAccess.Entities.AvailabilitySlot
+                        {
+                            Id = Guid.NewGuid(),
+                            ProductId = attractionId,
+                            SlotDate = currentDate,
+                            StartTime = time,
+                            EndTime = time.AddHours(2),
+                            CapacityTotal = capacity,
+                            CapacityAvailable = capacity,
+                            IsActive = true,
+                            CreatedAt = DateTime.UtcNow,
+                            UpdatedAt = DateTime.UtcNow
+                        });
+                    }
+                }
+            }
+            currentDate = currentDate.AddDays(1);
+        }
+
+        if (newSlots.Any())
+        {
+            await _unitOfWork.AvailabilitySlots.AddRangeAsync(newSlots);
+            await _unitOfWork.CompleteAsync();
+        }
+
+        return newSlots.Count;
+    }
+
+    public async Task<int> BulkDeleteSlotsAsync(Guid attractionId, DateOnly from, DateOnly to)
+    {
+        var slotsToDelete = await _unitOfWork.AvailabilitySlots.Query(asNoTracking: false)
+            .Where(s => s.ProductId == attractionId
+                        && s.SlotDate >= from
+                        && s.SlotDate <= to
+                        && !s.Bookings.Any())
+            .ToListAsync();
+
+        if (slotsToDelete.Any())
+        {
+            _unitOfWork.AvailabilitySlots.DeleteRange(slotsToDelete);
+            await _unitOfWork.CompleteAsync();
+        }
+
+        return slotsToDelete.Count;
+    }
 }
