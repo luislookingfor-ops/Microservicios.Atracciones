@@ -38,11 +38,10 @@ public class ReviewService : IReviewService
             throw new UnauthorizedBusinessException("No puedes reseñar una reserva que no te pertenece.");
 
         bool isCompleted = booking.StatusId == 3;
-        bool isConfirmedAndPassed = booking.StatusId == 2 && 
-                                   DateTime.UtcNow > booking.SlotDate.ToDateTime(booking.SlotStartTime);
+        bool isConfirmed = booking.StatusId == 2;
 
-        if (!isCompleted && !isConfirmedAndPassed)
-            throw new BusinessException("Solo puedes reseñar tours que ya hayan finalizado o estén marcados como completados.");
+        if (!isCompleted && !isConfirmed)
+            throw new BusinessException("Solo puedes reseñar tours que estén confirmados o completados.");
 
         var reviewNode = new ReviewNode
         {
