@@ -23,6 +23,9 @@ public interface IBookingService
     /// <summary>Cancela una reserva si aún está dentro del plazo de cancelación sin costo. Admite bypass de propiedad si es administrador.</summary>
     Task CancelBookingAsync(Guid userId, bool isAdmin, CancelBookingRequest request);
 
+    /// <summary>Confirma una reserva cambiando su estado a Confirmada (StatusId = 2).</summary>
+    Task ConfirmBookingAsync(Guid bookingId, Guid currentUserId, bool isAdmin);
+
     /// <summary>Consulta el monitor de horarios para una atracción y rango de fechas.</summary>
     Task<List<ScheduleMonitorDto>> GetScheduleMonitorAsync(Guid attractionId, DateOnly from, DateOnly to);
 

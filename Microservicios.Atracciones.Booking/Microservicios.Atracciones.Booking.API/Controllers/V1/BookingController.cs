@@ -73,6 +73,19 @@ public class BookingController : ControllerBase
     }
 
     /// <summary>
+    /// Confirma una reserva cambiando su estado a Confirmada (StatusId = 2).
+    /// </summary>
+    [HttpPost("{id:guid}/confirm")]
+    [Authorize(Roles = "Client,Admin")]
+    public async Task<ActionResult> ConfirmBooking(Guid id)
+    {
+        var currentUserId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+        bool isAdmin = User.IsInRole("Admin");
+        await _bookingService.ConfirmBookingAsync(id, currentUserId, isAdmin);
+        return Ok(new { Message = "Reserva confirmada correctamente." });
+    }
+
+    /// <summary>
     /// Historial de reservas del cliente autenticado.
     /// </summary>
     [HttpGet("user/history")]

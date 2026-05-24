@@ -184,6 +184,26 @@ public class BookingService : IBookingService
         await _inventoryData.DecrementSlotCapacityAsync(booking.SlotId, (short)-totalPassengers);
     }
 
+    public async Task ConfirmBookingAsync(Guid bookingId, Guid currentUserId, bool isAdmin)
+    {
+        var booking = await _bookingData.GetByIdAsync(bookingId);
+        if (booking == null)
+            throw new NotFoundException("Reserva", bookingId);
+
+        if (!isAdmin && booking.UserId != currentUserId)
+            throw new UnauthorizedBusinessException("No tienes permiso para confirmar esta reserva.");
+
+        if (booking.StatusId == 2)
+            return; // Ya está confirmada (acción idempotente)
+
+        if (booking.StatusId == 4)
+            throw new BusinessException("No se puede confirmar una reserva cancelada.");
+
+        var ok = await _bookingData.UpdateBookingStatusAsync(bookingId, statusId: 2);
+        if (!ok)
+            throw new BusinessException("No se pudo confirmar la reserva. Intente nuevamente.");
+    }
+
     private static BookingDetailResponse MapToDetail(BookingNode b) => new()
     {
         Id = b.Id,
