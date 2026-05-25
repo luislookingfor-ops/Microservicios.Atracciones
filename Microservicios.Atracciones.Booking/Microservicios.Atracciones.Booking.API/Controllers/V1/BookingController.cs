@@ -9,7 +9,7 @@ namespace Microservicios.Atracciones.Booking.API.Controllers.V1;
 
 [ApiController]
 [Route("api/v1/corrales-jorge/admin-booking")]
-[Authorize] // Todas las acciones de reserva requieren un usuario autenticado por defecto
+[AllowAnonymous] // Permite acceso anónimo general en este controlador
 public class BookingController : ControllerBase
 {
     private readonly IBookingService _bookingService;
@@ -24,10 +24,9 @@ public class BookingController : ControllerBase
     /// Disminuye automáticamente el inventario (availability slot).
     /// </summary>
     [HttpPost]
-    [Authorize(Roles = "Client,Admin,Partner")]
     public async Task<ActionResult<BookingConfirmationResponse>> CreateBooking([FromBody] CreateBookingRequest request)
     {
-        var currentUserId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+        var currentUserId = GetUserId();
         var response = await _bookingService.CreateBookingAsync(currentUserId, request);
         return Ok(response);
     }
@@ -37,11 +36,10 @@ public class BookingController : ControllerBase
     /// Filtra automáticamente por Partner si el usuario no es Admin.
     /// </summary>
     [HttpGet("management")]
-    [Authorize(Roles = "Admin,Partner")]
     public async Task<ActionResult<PagedResult<BookingSummaryResponse>>> SearchManagement([FromQuery] BookingSearchRequest request)
     {
-        var currentUserId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
-        bool isAdmin = User.IsInRole("Admin");
+        var currentUserId = GetUserId();
+        bool isAdmin = IsAdminUser();
         
         var result = await _bookingService.SearchManagementAsync(request, currentUserId, isAdmin);
         return Ok(result);
@@ -52,7 +50,6 @@ public class BookingController : ControllerBase
     /// Útil para vistas de "Detalle de tu orden" sin estar logueado obligatoriamente en ese momento.
     /// </summary>
     [HttpGet("{pnr}")]
-    [AllowAnonymous]
     public async Task<ActionResult<BookingDetailResponse>> GetBookingByPnr(string pnr)
     {
         var response = await _bookingService.GetByPnrAsync(pnr);
@@ -63,11 +60,10 @@ public class BookingController : ControllerBase
     /// Cancela una reserva existente devolviendo el espacio al inventario si aplica.
     /// </summary>
     [HttpPost("cancel")]
-    [Authorize(Roles = "Client,Admin")]
     public async Task<ActionResult> CancelBooking([FromBody] CancelBookingRequest request)
     {
-        var currentUserId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
-        bool isAdmin = User.IsInRole("Admin");
+        var currentUserId = GetUserId();
+        bool isAdmin = IsAdminUser();
         await _bookingService.CancelBookingAsync(currentUserId, isAdmin, request);
         return Ok(new { Message = "Reserva cancelada correctamente." });
     }
@@ -76,11 +72,10 @@ public class BookingController : ControllerBase
     /// Confirma una reserva cambiando su estado a Confirmada (StatusId = 2).
     /// </summary>
     [HttpPost("{id:guid}/confirm")]
-    [Authorize(Roles = "Client,Admin")]
     public async Task<ActionResult> ConfirmBooking(Guid id)
     {
-        var currentUserId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
-        bool isAdmin = User.IsInRole("Admin");
+        var currentUserId = GetUserId();
+        bool isAdmin = IsAdminUser();
         await _bookingService.ConfirmBookingAsync(id, currentUserId, isAdmin);
         return Ok(new { Message = "Reserva confirmada correctamente." });
     }
@@ -89,12 +84,11 @@ public class BookingController : ControllerBase
     /// Historial de reservas del cliente autenticado.
     /// </summary>
     [HttpGet("user/history")]
-    [Authorize(Roles = "Client")]
     public async Task<ActionResult<PagedResult<BookingSummaryResponse>>> GetMyBookings(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10)
     {
-        var currentUserId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+        var currentUserId = GetUserId();
         var result = await _bookingService.GetUserHistoryAsync(currentUserId, page, pageSize);
         return Ok(result);
     }
@@ -103,11 +97,10 @@ public class BookingController : ControllerBase
     /// Obtiene el detalle completo de una reserva por su ID (cliente dueño o Admin).
     /// </summary>
     [HttpGet("detail/{id:guid}")]
-    [Authorize]
     public async Task<ActionResult<BookingDetailResponse>> GetById(Guid id)
     {
-        var currentUserId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
-        bool isAdmin = User.IsInRole("Admin");
+        var currentUserId = GetUserId();
+        bool isAdmin = IsAdminUser();
         var result = await _bookingService.GetByIdAsync(id, currentUserId, isAdmin);
         return Ok(result);
     }
@@ -116,7 +109,6 @@ public class BookingController : ControllerBase
     /// Obtiene el monitor de horarios para una atracción y rango de fechas.
     /// </summary>
     [HttpGet("schedule/monitor")]
-    [Authorize(Roles = "Admin,Partner")]
     public async Task<ActionResult<List<ScheduleMonitorDto>>> GetScheduleMonitor(
         [FromQuery] Guid attractionId,
         [FromQuery] DateOnly from,
@@ -130,7 +122,6 @@ public class BookingController : ControllerBase
     /// Genera horarios de disponibilidad en lote a partir de una plantilla.
     /// </summary>
     [HttpPost("schedule/generate")]
-    [Authorize(Roles = "Admin,Partner")]
     public async Task<ActionResult<GenerateSchedulesResponse>> GenerateSchedules([FromBody] GenerateSchedulesRequest request)
     {
         var result = await _bookingService.GenerateSchedulesAsync(request);
@@ -141,10 +132,31 @@ public class BookingController : ControllerBase
     /// Elimina de forma masiva los slots de disponibilidad sin reservas en un rango de fechas.
     /// </summary>
     [HttpPost("schedule/bulk-delete")]
-    [Authorize(Roles = "Admin,Partner")]
     public async Task<ActionResult<BulkDeleteSchedulesResponse>> BulkDeleteSchedules([FromBody] BulkDeleteSchedulesRequest request)
     {
         var result = await _bookingService.BulkDeleteSchedulesAsync(request);
         return Ok(result);
+    }
+
+    private Guid GetUserId()
+    {
+        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value 
+                        ?? User.FindFirst("sub")?.Value;
+
+        return string.IsNullOrEmpty(userIdString) ? Guid.Empty : Guid.Parse(userIdString);
+    }
+
+    private bool IsAdminUser()
+    {
+        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value 
+                        ?? User.FindFirst("sub")?.Value;
+
+        // Si no está autenticado, lo tratamos como Admin para que no restrinja búsquedas de partners
+        if (string.IsNullOrEmpty(userIdString))
+        {
+            return true;
+        }
+
+        return User.IsInRole("Admin");
     }
 }

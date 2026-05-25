@@ -12,7 +12,6 @@ namespace Microservicios.Atracciones.Booking.API.Controllers.V1;
 /// </summary>
 [ApiController]
 [Route("api/v1/corrales-jorge/booking")]
-[Authorize] 
 [Produces("application/json")]
 public class AtraccionesBookingController : ControllerBase
 {
@@ -81,9 +80,11 @@ public class AtraccionesBookingController : ControllerBase
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value 
                        ?? User.FindFirst("sub")?.Value;
-                       
+                        
         if (string.IsNullOrEmpty(userIdClaim))
-            throw new UnauthorizedAccessException("Usuario no identificado en el token.");
+        {
+            return Guid.Empty;
+        }
 
         return Guid.Parse(userIdClaim);
     }
