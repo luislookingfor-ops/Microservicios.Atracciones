@@ -47,10 +47,15 @@ public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
 
         builder.Property(p => p.Amount).HasPrecision(12, 2);
         builder.Property(p => p.CurrencyCode).HasMaxLength(3).IsFixedLength().HasDefaultValue("USD");
-        builder.Property(p => p.TransactionExternalId).HasMaxLength(100);
         builder.Property(p => p.StatusId).HasDefaultValue((short)1);
-        builder.Property(p => p.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
-        builder.Property(p => p.UpdatedAt).HasDefaultValueSql("GETUTCDATE()");
+
+        builder.Ignore(p => p.TransactionExternalId);
+        builder.Ignore(p => p.GatewayResponse);
+        builder.Ignore(p => p.PaidAt);
+        builder.Ignore(p => p.RefundedAt);
+        builder.Ignore(p => p.RefundReason);
+        builder.Ignore(p => p.CreatedAt);
+        builder.Ignore(p => p.UpdatedAt);
 
         builder.HasOne(p => p.PaymentMethod)
                .WithMany(pm => pm.Payments)
@@ -76,14 +81,16 @@ public class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
         
         builder.Property(i => i.CustomerName).HasMaxLength(150).IsRequired();
         builder.Property(i => i.TaxId).HasMaxLength(20).IsRequired();
-        builder.Property(i => i.Email).HasMaxLength(100);
-        builder.Property(i => i.CurrencyCode).HasMaxLength(3).IsFixedLength().HasDefaultValue("USD");
-        
-        builder.Property(i => i.Subtotal).HasPrecision(12, 2);
-        builder.Property(i => i.TaxAmount).HasPrecision(12, 2);
         builder.Property(i => i.Total).HasPrecision(12, 2);
         
-        builder.Property(i => i.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+        builder.Property(i => i.CreatedAt);
+
+        builder.Ignore(i => i.UserId);
+        builder.Ignore(i => i.Email);
+        builder.Ignore(i => i.Address);
+        builder.Ignore(i => i.Subtotal);
+        builder.Ignore(i => i.TaxAmount);
+        builder.Ignore(i => i.CurrencyCode);
 
         builder.HasMany(i => i.Details)
                .WithOne(d => d.Invoice)
@@ -101,7 +108,8 @@ public class InvoiceDetailConfiguration : IEntityTypeConfiguration<InvoiceDetail
 
         builder.Property(d => d.Description).HasMaxLength(255).IsRequired();
         builder.Property(d => d.UnitPrice).HasPrecision(12, 2);
-        builder.Property(d => d.TaxRate).HasPrecision(5, 2);
         builder.Property(d => d.TotalItem).HasPrecision(12, 2);
+
+        builder.Ignore(d => d.TaxRate);
     }
 }
