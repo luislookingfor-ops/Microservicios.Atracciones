@@ -8,7 +8,6 @@ namespace Microservicios.Atracciones.Billing.API.Controllers.V1;
 
 [ApiController]
 [Route("api/v1/corrales-jorge/billing")]
-[Authorize(Roles = "Admin,Partner,Client")]
 public class BillingController : ControllerBase
 {
     private readonly IBillingService _billingService;
@@ -28,10 +27,10 @@ public class BillingController : ControllerBase
     [HttpGet("my-invoices")]
     public async Task<ActionResult<IEnumerable<InvoiceSummaryResponse>>> GetMyInvoices()
     {
-        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
-        if (userIdClaim == null) return Unauthorized();
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                       ?? User.FindFirst("sub")?.Value;
  
-        var userId = Guid.Parse(userIdClaim.Value);
+        var userId = string.IsNullOrEmpty(userIdClaim) ? Guid.Empty : Guid.Parse(userIdClaim);
         var result = await _billingService.GetUserInvoicesAsync(userId);
         return Ok(result);
     }

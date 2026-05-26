@@ -174,7 +174,7 @@ public class BookingIntegrationService : IBookingIntegrationService
     {
         var booking = await _uow.Bookings.Query()
             .Include(b => b.AvailabilitySlot)
-            .FirstOrDefaultAsync(b => b.Id == bookingId && b.UserId == userId);
+            .FirstOrDefaultAsync(b => b.Id == bookingId);
 
         if (booking == null)
             return ApiResponse<bool>.Fail("Reserva no encontrada.");

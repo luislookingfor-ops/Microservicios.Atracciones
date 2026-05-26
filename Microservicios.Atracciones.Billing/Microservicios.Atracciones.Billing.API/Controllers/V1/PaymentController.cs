@@ -17,7 +17,6 @@ public class PaymentController : ControllerBase
     }
 
     [HttpGet("booking/{bookingId:guid}")]
-    [Authorize] // Dependiendo de la lógica, podría ser cualquier usuario autenticado o solo el dueño
     public async Task<ActionResult<IEnumerable<PaymentResponse>>> GetPaymentsByBooking(Guid bookingId)
     {
         var result = await _paymentService.GetPaymentsByBookingIdAsync(bookingId);
@@ -25,7 +24,6 @@ public class PaymentController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    [Authorize]
     public async Task<ActionResult<PaymentResponse>> GetById(Guid id)
     {
         var result = await _paymentService.GetPaymentByIdAsync(id);
@@ -34,7 +32,6 @@ public class PaymentController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize]
     public async Task<ActionResult<Guid>> Create([FromBody] CreatePaymentRequest request)
     {
         var id = await _paymentService.CreatePaymentAsync(request);
@@ -42,7 +39,6 @@ public class PaymentController : ControllerBase
     }
 
     [HttpPut("{id:guid}/status")]
-    [Authorize] // Permitimos que el Frontend (Cliente) actualice el estado tras el cobro exitoso
     public async Task<ActionResult> UpdateStatus(Guid id, [FromBody] UpdatePaymentStatusRequest request)
     {
         var success = await _paymentService.UpdatePaymentStatusAsync(id, request);
@@ -51,7 +47,6 @@ public class PaymentController : ControllerBase
     }
 
     [HttpPost("{id:guid}/refund")]
-    [Authorize(Roles = "Admin,Partner")] // Solo administradores
     public async Task<ActionResult> Refund(Guid id, [FromBody] ProcessRefundRequest request)
     {
         try
