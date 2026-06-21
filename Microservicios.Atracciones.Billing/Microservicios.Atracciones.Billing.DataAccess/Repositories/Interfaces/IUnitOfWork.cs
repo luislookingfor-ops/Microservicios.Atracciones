@@ -7,4 +7,5 @@ public interface IUnitOfWork : IDisposable
     IInvoiceDetailRepository InvoiceDetails { get; }
 
     Task<int> CompleteAsync();
+    Task ExecuteSqlRawAsync(string sql, params object[] parameters);
 }

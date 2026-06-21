@@ -54,6 +54,14 @@ public class PaymentService : IPaymentService
 
         await _uow.Payments.AddAsync(payment);
         await _uow.CompleteAsync();
+
+        if (payment.StatusId == 2) // Paid/Succeeded -> Confirm Booking
+        {
+            await _uow.ExecuteSqlRawAsync(
+                "UPDATE booking SET status_id = 2, updated_at = @p0 WHERE id = @p1",
+                DateTime.UtcNow, payment.BookingId);
+        }
+
         return payment.Id;
     }
 
@@ -77,6 +85,14 @@ public class PaymentService : IPaymentService
 
         _uow.Payments.Update(payment);
         await _uow.CompleteAsync();
+
+        if (payment.StatusId == 2) // Paid/Succeeded -> Confirm Booking
+        {
+            await _uow.ExecuteSqlRawAsync(
+                "UPDATE booking SET status_id = 2, updated_at = @p0 WHERE id = @p1",
+                DateTime.UtcNow, payment.BookingId);
+        }
+
         return true;
     }
 
@@ -95,6 +111,12 @@ public class PaymentService : IPaymentService
 
         _uow.Payments.Update(payment);
         await _uow.CompleteAsync();
+
+        // Cancel Booking on refund
+        await _uow.ExecuteSqlRawAsync(
+            "UPDATE booking SET status_id = 4, cancel_reason = @p0, cancelled_at = @p1, updated_at = @p1 WHERE id = @p2",
+            request.RefundReason ?? "Refunded", DateTime.UtcNow, payment.BookingId);
+
         return true;
     }
 

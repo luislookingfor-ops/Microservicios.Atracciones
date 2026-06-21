@@ -1,5 +1,6 @@
 using Microservicios.Atracciones.Billing.DataAccess.Context;
 using Microservicios.Atracciones.Billing.DataAccess.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Microservicios.Atracciones.Billing.DataAccess.Repositories;
 
@@ -24,6 +25,11 @@ public class UnitOfWork : IUnitOfWork
     public async Task<int> CompleteAsync()
     {
         return await _context.SaveChangesAsync();
+    }
+
+    public async Task ExecuteSqlRawAsync(string sql, params object[] parameters)
+    {
+        await _context.Database.ExecuteSqlRawAsync(sql, parameters);
     }
 
     public void Dispose()

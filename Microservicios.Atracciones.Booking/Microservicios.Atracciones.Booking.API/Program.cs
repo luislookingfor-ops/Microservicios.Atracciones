@@ -10,10 +10,12 @@ using Microsoft.OpenApi.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddMemoryCache();
 
 builder.Services.AddDataAccessServices(builder.Configuration);
 builder.Services.AddDataManagementServices();
 builder.Services.AddBusinessServices();
+builder.Services.AddScoped<Microservicios.Atracciones.Booking.API.Filters.IdempotencyFilter>();
 
 builder.Services.AddControllers(options => 
 {
