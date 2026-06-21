@@ -36,5 +36,19 @@ namespace Microservicios.Atracciones.Gateway.Controllers
             await _hubContext.Clients.All.SendAsync("OnAttractionDeleted", attractionData);
             return Ok(new { success = true, message = "Notificación de eliminación enviada a WebSockets." });
         }
+
+        [HttpPost("booking-created")]
+        public async Task<IActionResult> NotifyBookingCreated([FromBody] object bookingData)
+        {
+            await _hubContext.Clients.All.SendAsync("OnBookingCreated", bookingData);
+            return Ok(new { success = true, message = "Notificación de reserva creada enviada a WebSockets." });
+        }
+
+        [HttpPost("availability-updated")]
+        public async Task<IActionResult> NotifyAvailabilityUpdated([FromBody] object availabilityData)
+        {
+            await _hubContext.Clients.All.SendAsync("OnAvailabilityUpdated", availabilityData);
+            return Ok(new { success = true, message = "Notificación de cupos actualizada enviada a WebSockets." });
+        }
     }
 }

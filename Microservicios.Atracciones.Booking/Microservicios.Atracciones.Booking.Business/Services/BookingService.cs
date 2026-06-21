@@ -5,6 +5,9 @@ using Microservicios.Atracciones.Booking.Business.Interfaces;
 using Microservicios.Atracciones.Booking.DataAccess.Common;
 using Microservicios.Atracciones.Booking.DataManagement.Interfaces;
 using Microservicios.Atracciones.Booking.DataManagement.Models;
+using System.Net.Http;
+using Microsoft.Extensions.Configuration;
+using System.Text.Json;
 
 namespace Microservicios.Atracciones.Booking.Business.Services;
 
@@ -14,17 +17,41 @@ public class BookingService : IBookingService
     private readonly IInventoryDataService _inventoryData;
     private readonly IValidator<CreateBookingRequest> _createValidator;
     private readonly IValidator<CancelBookingRequest> _cancelValidator;
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IConfiguration _configuration;
 
     public BookingService(
         IBookingDataService bookingData,
         IInventoryDataService inventoryData,
         IValidator<CreateBookingRequest> createValidator,
-        IValidator<CancelBookingRequest> cancelValidator)
+        IValidator<CancelBookingRequest> cancelValidator,
+        IHttpClientFactory httpClientFactory,
+        IConfiguration configuration)
     {
         _bookingData = bookingData;
         _inventoryData = inventoryData;
         _createValidator = createValidator;
         _cancelValidator = cancelValidator;
+        _httpClientFactory = httpClientFactory;
+        _configuration = configuration;
+    }
+
+    private async Task NotifyGatewayAsync(string path, object payload)
+    {
+        try
+        {
+            var notifyUrl = _configuration["GatewaySettings:NotifyUrl"];
+            if (string.IsNullOrEmpty(notifyUrl)) return;
+
+            var client = _httpClientFactory.CreateClient();
+            var json = JsonSerializer.Serialize(payload);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            await client.PostAsync($"{notifyUrl.TrimEnd('/')}/{path}", content);
+        }
+        catch (System.Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Failed to notify SignalR Gateway: {ex.Message}");
+        }
     }
 
     public async Task<BookingConfirmationResponse> CreateBookingAsync(Guid userId, CreateBookingRequest request)
@@ -84,6 +111,13 @@ public class BookingService : IBookingService
             throw new BusinessException("No se pudo completar la reserva. Intente nuevamente.");
 
         await _inventoryData.DecrementSlotCapacityAsync(request.SlotId, totalPassengers);
+
+        // Notify availability updated in real-time
+        var updatedSlot = await _inventoryData.GetSlotByIdAsync(request.SlotId);
+        if (updatedSlot != null)
+        {
+            _ = NotifyGatewayAsync("availability-updated", new { slotId = updatedSlot.Id, capacityAvailable = updatedSlot.CapacityAvailable });
+        }
 
         return new BookingConfirmationResponse
         {
@@ -182,6 +216,16 @@ public class BookingService : IBookingService
 
         short totalPassengers = (short)booking.Details.Sum(d => d.Quantity);
         await _inventoryData.DecrementSlotCapacityAsync(booking.SlotId, (short)-totalPassengers);
+
+        // Notify cancellation (booking updated)
+        _ = NotifyGatewayAsync("booking-created", new { userId = booking.UserId });
+
+        // Notify availability restored in real-time
+        var updatedSlot = await _inventoryData.GetSlotByIdAsync(booking.SlotId);
+        if (updatedSlot != null)
+        {
+            _ = NotifyGatewayAsync("availability-updated", new { slotId = updatedSlot.Id, capacityAvailable = updatedSlot.CapacityAvailable });
+        }
     }
 
     public async Task ConfirmBookingAsync(Guid bookingId, Guid currentUserId, bool isAdmin)
@@ -202,6 +246,9 @@ public class BookingService : IBookingService
         var ok = await _bookingData.UpdateBookingStatusAsync(bookingId, statusId: 2);
         if (!ok)
             throw new BusinessException("No se pudo confirmar la reserva. Intente nuevamente.");
+
+        // Notify booking confirmed
+        _ = NotifyGatewayAsync("booking-created", new { userId = booking.UserId });
     }
 
     private static BookingDetailResponse MapToDetail(BookingNode b) => new()
